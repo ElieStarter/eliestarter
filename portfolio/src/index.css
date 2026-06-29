@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Tagesschrift&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Tagesschrift&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .bg-custom-gradient {
+    background: linear-gradient(
+      120deg,
+      rgba(1, 22, 39, 1) 43%,
+      rgba(108, 120, 130, 1) 76%,
+      rgba(250, 250, 250, 1) 100%
+    );
+  }
+}
+
+  
+  
+
+body {
+	background-color: #011627;
+}
+
+.libre {
+  font-family: 'Libre Baskerville', serif;
+}
+
+.first-color { 
+	background: #eeeeee; 
+}
+	
+.second-color { 
+	background: #7971ea; 
+}
+
+.third-color { 
+	background: #393e46; 
+}
+
+.fourth-color { 
+	background: #222831; 
+}
+
+.five-color { 
+	background: #011627; 
+}
+.five-color { 
+	background: #82aaff; 
+}
+
+.five-color { 
+	background: #21c7a8; 
+}
+
+/*  */
+
+.first-color { 
+	background: #323643; 
+}
+	
+.second-color { 
+	background: #606470; 
+}
+
+.third-color { 
+	background: #93deff; 
+}
+
+.fourth-color { 
+	background: #f7f7f7; 
+}
+
+:root {
+	--background-color: #011627;
+	--text-color: #d6deeb;
+	--secondary-text-color: #637777;
+	--keyword-color: #82aaff;
+	--string-color: #21c7a8;
+	--function-color: #f78c6c;
+	--attribute-color: #c792ea;
+	--number-color: #ecc48d;
+	--error-color: #ff5370;
+  }
