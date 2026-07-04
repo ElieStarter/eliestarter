@@ -95,7 +95,7 @@ const Main = () => {
             <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_0.9fr]">
               <div>
                 <p className="mb-4 text-sm font-semibold uppercase tracking-[0.3em] text-[#21c7a8]">
-                  Portfolio créatif
+                  Portfolio
                 </p>
 
                 <h1 className="libre text-6xl font-black italic leading-none sm:text-8xl lg:text-9xl">
@@ -142,12 +142,12 @@ const Main = () => {
                   </p>
 
                   <h2 className="text-3xl font-black leading-tight sm:text-5xl">
-                    Trois univers, une même approche visuelle.
+                    Quand les mondes de la créativité s'entremêlent
                   </h2>
                 </div>
 
                 <p className="max-w-md text-white/60 md:text-right">
-                  Développement, design graphique et maquettes UI réunis dans un portfolio clair et interactif.
+                  Développement, logo, montages photos et mockups.
                 </p>
               </div>
 

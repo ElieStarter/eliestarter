@@ -155,13 +155,12 @@ const Illustrator = () => {
               </p>
 
               <h1 className="libre text-5xl font-black italic leading-none sm:text-7xl lg:text-8xl">
-                Logos &amp; identit&eacute;s
+                Créations et conceptions de logos
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-white/70 sm:text-xl">
                 Une galerie d&eacute;di&eacute;e &agrave; mes cr&eacute;ations
-                vectorielles, logos, pictogrammes et recherches d'identit&eacute;
-                visuelle.
+                vectorielles, logos, et visuels.
               </p>
             </div>
 
@@ -171,7 +170,7 @@ const Illustrator = () => {
               </p>
 
               <p className="text-4xl font-black leading-tight sm:text-5xl">
-                Des symboles propres, lisibles et pens&eacute;s pour marquer.
+                Passion et création à l'origine de l'art.
               </p>
             </div>
           </div>

@@ -1,6 +1,9 @@
 import Navbar from "../main/Navbar";
 import blogup from "./blogup.mp4";
 import spotify from "./spotify.mp4";
+import puissance4 from './puissance4.mp4';
+import chezjenny from './chezjenny.mp4';
+import gamingfantasy from './gamingfantasy.mp4';
 import programming from "./programming.png";
 import Footer from "../main/Footer";
 import { motion } from "framer-motion";
@@ -23,11 +26,27 @@ const projects = [
     accent: "lime",
   },
   {
-    title: "Blog Up - évolution",
-    video: blogup,
+    title: "Gaming Fantasy",
+    video: gamingfantasy,
     description:
-      "Une suite du projet Blog Up avec des améliorations prévues sur l'expérience utilisateur, la gestion du contenu et la présentation des articles.",
+      "LA version définitive de blog up ! Cette nouvelle version de blog up, Gaming Fantasy est un site de blog axé sur l'univers du jeux video. Mise en ligne prochainement !",
     tags: ["Astro", "Strapi", "UX"],
+    accent: "cyan",
+  },
+  {
+    title: "Puissance 4",
+    video: puissance4,
+    description:
+      "Jeu de puissance 4",
+    tags: ["HTML", "CSS", "JS"],
+    accent: "cyan",
+  },
+  {
+    title: "Chez Jenny",
+    video: chezjenny,
+    description:
+      "Site de recette de cuisine et de patisserie",
+    tags: ["REACTJS", "TAILWIND", "STRAPI", "EXPRESS JS"],
     accent: "cyan",
   },
 ];
