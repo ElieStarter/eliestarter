@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Footer from "../main/Footer";
 import logo from "./pngwing.com.png";
 
-const API_URL = "http://localhost:1337";
+// const API_URL = "http://localhost:1337";
+const API_URL = "https://api.eliestudio.com";
 
 const getField = (item, fieldName) => {
   return item?.[fieldName] ?? item?.attributes?.[fieldName];
