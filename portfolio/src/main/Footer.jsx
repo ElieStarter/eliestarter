@@ -1,5 +1,26 @@
-import eliestarter from "./realeliestarter.png";
+import elieStudioLogo from "./eliestudio.svg";
 import { Link } from "react-router-dom";
+
+const Logo = ({ className = "" }) => {
+  return (
+    <span
+      className={`block bg-current transition-colors duration-300 ${className}`}
+      role="img"
+      aria-label="Logo du portfolio"
+      style={{
+        aspectRatio: "1008.46 / 318.99",
+        WebkitMaskImage: `url(${elieStudioLogo})`,
+        maskImage: `url(${elieStudioLogo})`,
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+      }}
+    />
+  );
+};
 
 const footerLinks = [
   {
@@ -46,8 +67,12 @@ const Footer = () => {
   return (
     <footer className="border-t border-white/10 bg-[#011627] px-6 py-14 lg:px-24">
       <div className="flex flex-col items-center gap-y-10 text-center lg:flex-row lg:justify-between lg:text-left">
-        <Link to="/" aria-label="Retour a l'accueil">
-          <img src={eliestarter} alt="ElieStarter" width={300} />
+        <Link
+          to="/"
+          aria-label="Retour a l'accueil"
+          className="inline-flex text-white transition-colors duration-300 hover:text-[#21c7a8]"
+        >
+          <Logo className="w-[300px] max-w-[80vw]" />
         </Link>
 
         <nav aria-label="Navigation du pied de page">

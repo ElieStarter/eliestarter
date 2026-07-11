@@ -107,12 +107,19 @@ const Main = () => {
                 </p>
 
                 <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                  <button
+                  {/* <button
                     onClick={togglePersona}
                     className="rounded-full bg-[#21c7a8] px-7 py-4 font-bold text-[#07111f] transition hover:bg-white"
                   >
                     Découvrir mon persona
-                  </button>
+                  </button> */}
+
+                  <Link
+                    to="/illustrator"
+                    className="rounded-full bg-[#21c7a8] px-7 py-4 font-bold text-[#07111f] transition hover:bg-white"
+                  >
+                    Voir mes projets Logos
+                  </Link>
 
                   <Link
                     to="/projets-web"

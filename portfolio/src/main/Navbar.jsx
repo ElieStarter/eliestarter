@@ -1,6 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import eliestarter from "./realeliestarter.png";
+import elieStarterLogo from "./eliestudio.svg";
+
+const Logo = ({ className = "" }) => {
+  return (
+    <span
+      className={`block bg-current transition-colors duration-300 ${className}`}
+      role="img"
+      aria-label="Logo du portfolio"
+      style={{
+        aspectRatio: "1008.46 / 318.99",
+        WebkitMaskImage: `url(${elieStarterLogo})`,
+        maskImage: `url(${elieStarterLogo})`,
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+      }}
+    />
+  );
+};
 
 const navLinks = [
   {
@@ -58,67 +79,78 @@ const Navbar = () => {
     setMenuOpen(false);
   };
 
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [menuOpen]);
+
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#07111f]/85 backdrop-blur-xl">
-      <nav
-        className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8 lg:px-10"
-        aria-label="Navigation principale"
-      >
-        <Link
-          to="/"
-          className="inline-flex items-center"
-          aria-label="Retour a l'accueil ElieStarter"
-          onClick={closeMenu}
+    <>
+      <header className="fixed inset-x-0 top-0 z-[100] border-b border-white/10 bg-[#07111f]/85 backdrop-blur-xl">
+        <nav
+          className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8 lg:px-10"
+          aria-label="Navigation principale"
         >
-          <img
-            src={eliestarter}
-            alt="ElieStarter"
-            className="h-auto w-44 object-contain sm:w-52 lg:w-60"
-          />
-        </Link>
+          <Link
+            to="/"
+            className="inline-flex items-center text-white transition-colors duration-300 hover:text-[#21c7a8]"
+            aria-label="Retour a l'accueil"
+            onClick={closeMenu}
+          >
+            <Logo className="h-auto w-44 sm:w-52 lg:w-60" />
+          </Link>
 
-        <ul className="hidden items-center gap-2 md:flex">
-          {navLinks.map((link) => (
-            <li key={link.route}>
-              <NavLink to={link.route} className={getNavLinkClass}>
-                <i className={`${link.icon} text-sm`} aria-hidden="true" />
-                <span>{link.label}</span>
-              </NavLink>
-            </li>
-          ))}
-        </ul>
+          <ul className="hidden items-center gap-2 md:flex">
+            {navLinks.map((link) => (
+              <li key={link.route}>
+                <NavLink to={link.route} className={getNavLinkClass}>
+                  <i className={`${link.icon} text-sm`} aria-hidden="true" />
+                  <span>{link.label}</span>
+                </NavLink>
+              </li>
+            ))}
+          </ul>
 
-        <div className="hidden items-center gap-3 lg:flex">
-          {socialLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition hover:border-[#21c7a8]/70 hover:bg-[#21c7a8] hover:text-[#07111f]"
-              aria-label={link.label}
-            >
-              <i className={link.icon} aria-hidden="true" />
-            </a>
-          ))}
-        </div>
+          <div className="hidden items-center gap-3 lg:flex">
+            {socialLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/70 transition hover:border-[#21c7a8]/70 hover:bg-[#21c7a8] hover:text-[#07111f]"
+                aria-label={link.label}
+              >
+                <i className={link.icon} aria-hidden="true" />
+              </a>
+            ))}
+          </div>
 
-        <button
-          type="button"
-          onClick={() => setMenuOpen(true)}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xl text-[#21c7a8] transition hover:bg-white hover:text-[#07111f] md:hidden"
-          aria-label="Ouvrir le menu"
-          aria-expanded={menuOpen}
-          aria-controls="mobile-navigation"
-        >
-          <i className="fas fa-bars" aria-hidden="true" />
-        </button>
-      </nav>
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xl text-[#21c7a8] transition hover:bg-white hover:text-[#07111f] md:hidden"
+            aria-label="Ouvrir le menu"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
+          >
+            <i className="fas fa-bars" aria-hidden="true" />
+          </button>
+        </nav>
+      </header>
+
+      <div className="h-[88px] sm:h-[96px] lg:h-[108px]" aria-hidden="true" />
 
       {menuOpen && (
         <button
           type="button"
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm md:hidden"
           onClick={closeMenu}
           aria-label="Fermer le menu"
         />
@@ -126,18 +158,19 @@ const Navbar = () => {
 
       <aside
         id="mobile-navigation"
-        className={`fixed right-0 top-0 z-50 flex h-dvh w-[86%] max-w-sm flex-col border-l border-white/10 bg-[#07111f] shadow-2xl transition-transform duration-300 ease-out md:hidden ${
+        className={`fixed right-0 top-0 z-[120] flex h-dvh w-[86%] max-w-sm flex-col border-l border-white/10 bg-[#07111f] shadow-2xl transition-transform duration-300 ease-out md:hidden ${
           menuOpen ? "translate-x-0" : "translate-x-full"
         }`}
         aria-label="Navigation mobile"
       >
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-5">
-          <Link to="/" aria-label="Retour a l'accueil ElieStarter" onClick={closeMenu}>
-            <img
-              src={eliestarter}
-              alt="ElieStarter"
-              className="h-auto w-44 object-contain"
-            />
+          <Link
+            to="/"
+            aria-label="Retour a l'accueil"
+            className="inline-flex text-white transition-colors duration-300 hover:text-[#21c7a8]"
+            onClick={closeMenu}
+          >
+            <Logo className="h-auto w-44" />
           </Link>
 
           <button
@@ -192,11 +225,11 @@ const Navbar = () => {
           </div>
 
           <p className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
-            ElieStarter Portfolio
+            Portfolio
           </p>
         </div>
       </aside>
-    </header>
+    </>
   );
 };
 
