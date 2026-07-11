@@ -4,7 +4,8 @@ import Footer from "../main/Footer";
 import illustrator from "./illustratorpng.png";
 import { motion } from "framer-motion";
 
-const API_URL = "http://localhost:1337";
+// const API_URL = "http://localhost:1337";
+const API_URL = "https://api.eliestudio.com";
 
 const getField = (item, fieldName) => {
   return item?.[fieldName] ?? item?.attributes?.[fieldName];
