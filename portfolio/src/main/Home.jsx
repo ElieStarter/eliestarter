@@ -125,7 +125,7 @@ const Main = () => {
                     to="/projets-web"
                     className="rounded-full border border-white/15 bg-white/10 px-7 py-4 text-center font-bold text-white backdrop-blur-md transition hover:bg-white hover:text-[#07111f]"
                   >
-                    Voir mes projets
+                    Voir mes projets web
                   </Link>
                 </div>
               </div>
