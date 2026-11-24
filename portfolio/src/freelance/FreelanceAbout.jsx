@@ -46,10 +46,10 @@ const FreelanceAbout = () => {
 
           <div className="max-w-[58ch] space-y-3 border-l-2 border-[#21c7a8] pl-4 text-base leading-7 text-[#304c49] sm:pl-5 lg:text-lg lg:leading-8">
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              Hello moi c'est Elie 😎
             </p>
             <p>
-              Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              Ayant beaucoup de plaisir à manier des logiciels comme Photoshop et Illustrator, j’ai décidé de créer ma propre petite entreprise pour mettre à profit tout ce que j’ai appris et faire de ma passion une réalité.
             </p>
           </div>
         </div>

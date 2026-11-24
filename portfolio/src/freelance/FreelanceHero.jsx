@@ -36,7 +36,8 @@ const FreelanceHero = ({ onRequestQuote }) => {
             Graphiste <span className="block">freelance</span>
           </h1>
           <p className="mt-5 max-w-md text-base leading-7 text-[#e0ebe8] sm:text-lg sm:leading-8">
-            Je suis Élie. Je conçois des logos, des identités visuelles et des supports qui donnent une image reconnaissable à votre activité.
+            Je crée votre logo et votre identité visuelle pour donner forme à votre vision.
+            Si vous avez des doutes quant a l'idée, je peux vous y aider 😊
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-4">
             <a href="#contact" className={primaryButton} onClick={() => onRequestQuote()}>
