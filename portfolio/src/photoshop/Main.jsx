@@ -20,8 +20,8 @@ const metadata = {
 
 const container = "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12";
 
-const API_URL = "http://localhost:1337";
-// const API_URL = "https://api.eliestudio.com";
+// const API_URL = "http://localhost:1337";
+const API_URL = "https://api.eliestudio.com";
 
 const getField = (item, fieldName) => {
   return item?.[fieldName] ?? item?.attributes?.[fieldName];

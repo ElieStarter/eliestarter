@@ -5,8 +5,8 @@ import Footer from "../main/Footer";
 import PresentationBrand from "../main/PresentationBrand";
 import illustratorLogo from "./illustratorpng.png";
 
-const API_URL = "http://localhost:1337";
-// const API_URL = "https://api.eliestudio.com";
+// const API_URL = "http://localhost:1337";
+const API_URL = "https://api.eliestudio.com";
 
 const pageTitle = "Logos et identités visuelles | ÉlieStudio";
 const pageDescription = "Découvrez les logos clients et les créations personnelles d’ElieStudio, une galerie de design de logos et d’identités visuelles réalisés avec Adobe Illustrator.";
