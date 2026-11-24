@@ -1,0 +1,11 @@
+@font-face {
+  font-family: "Playwrite AU SA Guides";
+  src: url("./playwrite-au-sa-guides.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+.freelance-service-title {
+  font-family: "Playwrite AU SA Guides", cursive;
+}

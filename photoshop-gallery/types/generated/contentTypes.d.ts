@@ -384,6 +384,7 @@ export interface ApiLogoLogo extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    categorie: Schema.Attribute.Enumeration<['personnel', 'client']>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

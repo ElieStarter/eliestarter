@@ -26,6 +26,13 @@
     },
     "description": {
       "type": "blocks"
+    },
+    "categorie": {
+      "type": "enumeration",
+      "enum": [
+        "personnel",
+        "client"
+      ]
     }
   }
 }

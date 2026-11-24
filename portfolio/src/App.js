@@ -5,6 +5,9 @@ import Mockup from './mockup/Mockup';
 import './index.css';
 import Photo from './photoshop/Main';
 import Illustrator from './illustrator-logo/Illustrator';
+import Freelance from './freelance/Freelance';
+import ContactPage from './contact/ContactPage';
+
 
 // mockups website :
 import Ironhack from './mockup/projects/project-ironhack/Ironhack';
@@ -17,6 +20,8 @@ function App() {
       
         <Routes>
           <Route path="/" element={<Main />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/el-freelance" element={<Freelance />} />
           <Route path="/projets-web" element={<Web />} />
           <Route path='/mockup' element={<Mockup />} />
           <Route path='/photoshop' element={<Photo />} />

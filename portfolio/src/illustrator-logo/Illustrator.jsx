@@ -1,11 +1,35 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import Navbar from "../main/Navbar";
 import Footer from "../main/Footer";
-import illustrator from "./illustratorpng.png";
-import { motion } from "framer-motion";
+import PresentationBrand from "../main/PresentationBrand";
+import illustratorLogo from "./illustratorpng.png";
 
-// const API_URL = "http://localhost:1337";
-const API_URL = "https://api.eliestudio.com";
+const API_URL = "http://localhost:1337";
+// const API_URL = "https://api.eliestudio.com";
+
+const pageTitle = "Logos et identités visuelles | ÉlieStudio";
+const pageDescription = "Découvrez les logos clients et les créations personnelles d’ElieStudio, une galerie de design de logos et d’identités visuelles réalisés avec Adobe Illustrator.";
+const container = "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12";
+const contactEmail = "bonjour@eliestudio.example";
+const contactPhone = "+33 1 99 00 00 00";
+
+const galleries = [
+  {
+    category: "client",
+    id: "logos-clients",
+    title: "Logos clients",
+    description: "Des logos conçus pour donner aux marques et aux entreprises une identité reconnaissable.",
+    empty: "Les premiers logos clients seront publiés ici.",
+  },
+  {
+    category: "personnel",
+    id: "creations-personnelles",
+    title: "Créations personnelles",
+    description: "Mes explorations graphiques autour des formes, des symboles et de la typographie.",
+    empty: "Aucune création personnelle publiée pour le moment.",
+  },
+];
 
 const getField = (item, fieldName) => {
   return item?.[fieldName] ?? item?.attributes?.[fieldName];
@@ -43,20 +67,10 @@ const getPlainText = (value, fallback = "") => {
   return fallback;
 };
 
-const getTextBlocks = (value, fallback) => {
-  if (value === null || value === undefined) return [fallback];
-  if (typeof value === "string") return [value];
-
-  if (Array.isArray(value)) {
-    const blocks = value
-      .map((item) => getPlainText(item, ""))
-      .filter(Boolean);
-
-    return blocks.length > 0 ? blocks : [fallback];
-  }
-
-  return [getPlainText(value, fallback)];
-};
+const getTextBlocks = (value) =>
+  (Array.isArray(value) ? value : [value])
+    .map((block) => getPlainText(block).trim())
+    .filter(Boolean);
 
 const normalizeMediaUrl = (url) => {
   if (!url || typeof url !== "string") return null;
@@ -109,184 +123,363 @@ const getMediaUrl = (item) => {
   return normalizeMediaUrl(findMediaUrl(media));
 };
 
-const Illustrator = () => {
-  const [logos, setLogos] = useState([]);
-  const [loading, setLoading] = useState(true);
+const fetchLogos = async (signal) => {
+  const endpoint = new URL("/api/logos", API_URL);
+  endpoint.searchParams.set("populate", "*");
+  endpoint.searchParams.set("sort", "id:asc");
+  endpoint.searchParams.set("pagination[pageSize]", "50");
 
+  const logos = [];
+  let pageCount = 1;
+
+  for (let page = 1; page <= pageCount; page += 1) {
+    endpoint.searchParams.set("pagination[page]", String(page));
+    const response = await fetch(endpoint, { signal });
+    if (!response.ok) throw new Error(`Strapi HTTP ${response.status}`);
+
+    const payload = await response.json();
+    if (!Array.isArray(payload?.data)) throw new Error("Réponse Strapi inattendue.");
+
+    logos.push(...payload.data);
+    pageCount = payload.meta?.pagination?.pageCount ?? 1;
+  }
+
+  return logos;
+};
+
+const useIllustratorSeo = () => {
   useEffect(() => {
-    const fetchLogos = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/logos?populate=*`);
+    const pageUrl = new URL("/illustrator", window.location.origin).href;
+    const previousTitle = document.title;
+    document.title = pageTitle;
 
-        if (!res.ok) {
-          throw new Error(`Erreur HTTP ${res.status}`);
-        }
+    const fields = [
+      ["meta", "name", "description", "content", pageDescription],
+      ["link", "rel", "canonical", "href", pageUrl],
+      ["meta", "property", "og:type", "content", "website"],
+      ["meta", "property", "og:site_name", "content", "ÉlieStudio"],
+      ["meta", "property", "og:title", "content", pageTitle],
+      ["meta", "property", "og:description", "content", pageDescription],
+      ["meta", "property", "og:url", "content", pageUrl],
+    ];
 
-        const data = await res.json();
+    const restore = fields.map(([tag, attribute, key, target, value]) => {
+      const existing = document.head.querySelector(`${tag}[${attribute}="${key}"]`);
+      const node = existing || document.createElement(tag);
+      const previousValue = node.getAttribute(target);
+      node.setAttribute(attribute, key);
+      node.setAttribute(target, value);
+      if (!existing) document.head.appendChild(node);
 
-        if (Array.isArray(data?.data)) {
-          setLogos(data.data);
-        }
-      } catch (error) {
-        console.error("Erreur de chargement des logos :", error);
-      } finally {
-        setLoading(false);
-      }
+      return () => {
+        if (!existing) node.remove();
+        else if (previousValue === null) node.removeAttribute(target);
+        else node.setAttribute(target, previousValue);
+      };
+    });
+
+    const schema = document.createElement("script");
+    schema.type = "application/ld+json";
+    schema.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: pageTitle,
+      description: pageDescription,
+      url: pageUrl,
+      inLanguage: "fr",
+    });
+    document.head.appendChild(schema);
+
+    return () => {
+      document.title = previousTitle;
+      restore.forEach((restoreField) => restoreField());
+      schema.remove();
     };
-
-    fetchLogos();
   }, []);
+};
+
+const LogoCard = ({ logo, light, reduceMotion, index }) => {
+  const title = getPlainText(getField(logo, "title") ?? getField(logo, "text")).trim() || "Logo sans titre";
+  const descriptionBlocks = getTextBlocks(getField(logo, "description"));
+  const imageUrl = getMediaUrl(logo);
+  const [failedImage, setFailedImage] = useState(null);
+  const showImage = imageUrl && failedImage !== imageUrl;
 
   return (
-    <motion.div
-      className="min-h-screen bg-[#07111f] text-white"
-      initial={{ opacity: 0, x: 80 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -80 }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
+    <motion.article
+      initial={reduceMotion ? false : { y: 18, opacity: 0.88 }}
+      whileInView={{ y: 0, opacity: 1 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: reduceMotion ? 0 : 0.4, delay: reduceMotion ? 0 : (index % 3) * 0.06, ease: "easeOut" }}
+      className={`group flex min-w-0 flex-col overflow-hidden rounded-lg border transition-[border-color,box-shadow] duration-300 hover:border-[#21c7a8] hover:shadow-[0_12px_30px_#07111f26] focus-within:border-[#21c7a8] ${
+        light ? "border-[#cfddd7] bg-white shadow-[0_4px_14px_#07111f0a]" : "border-white/15 bg-[#0b2231]"
+      }`}
     >
+      <div className="relative isolate grid aspect-[4/3] place-items-center overflow-hidden border-b border-[#d4e2dd] bg-[#f1f6f3] p-6 sm:p-8">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#173c3212_1px,transparent_1px),linear-gradient(to_bottom,#173c3212_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:linear-gradient(135deg,black,transparent_75%)]"
+        />
+        {showImage ? (
+          <img
+            src={imageUrl}
+            alt={title}
+            loading="lazy"
+            decoding="async"
+            onError={() => setFailedImage(imageUrl)}
+            className="relative h-full min-h-0 w-full object-contain motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.06]"
+          />
+        ) : (
+          <span className="text-sm font-medium text-[#355452]">Visuel indisponible</span>
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col p-5 sm:p-7">
+        <h3 className="break-words font-playfair text-2xl font-bold leading-snug sm:text-3xl">{title}</h3>
+
+        {descriptionBlocks.length > 0 && (
+          <div className={`mt-3 space-y-2 whitespace-pre-line break-words text-sm leading-6 ${light ? "text-[#355452]" : "text-[#c3dbd8]"}`}>
+            {descriptionBlocks.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+          </div>
+        )}
+
+        {imageUrl && (
+          <div className="mt-auto pt-6">
+            <a
+              href={imageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Voir le logo ${title} (nouvel onglet)`}
+              className={`group/link flex min-h-12 w-full items-center justify-between gap-3 rounded-md px-4 py-2.5 text-sm font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#21c7a8] ${
+                light ? "bg-[#07111f] text-white hover:bg-[#17483d]" : "bg-[#21c7a8] text-[#07111f] hover:bg-[#6ce0c9]"
+              }`}
+            >
+              Voir le logo
+              <i className="fas fa-external-link-alt shrink-0 motion-safe:transition-transform motion-safe:group-hover/link:translate-x-0.5" aria-hidden="true" />
+            </a>
+          </div>
+        )}
+      </div>
+    </motion.article>
+  );
+};
+
+const LogoGallery = ({ gallery, logos, status, reduceMotion }) => {
+  const light = gallery.category === "client";
+  const secondaryText = light ? "text-[#355452]" : "text-[#c3dbd8]";
+
+  return (
+    <section
+      id={gallery.id}
+      aria-labelledby={`${gallery.id}-title`}
+      tabIndex={-1}
+      className={`scroll-mt-28 py-10 focus:outline-none sm:py-16 ${light ? "bg-[#eff5f2] text-[#07111f]" : "bg-[#011627] text-white"}`}
+    >
+      <div className={container}>
+        <motion.div
+          initial={reduceMotion ? false : { y: 14, opacity: 0.85 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: reduceMotion ? 0 : 0.4, ease: "easeOut" }}
+        >
+          <h2 id={`${gallery.id}-title`} className="font-playfair text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+            {gallery.title}
+          </h2>
+          <p className={`mt-3 max-w-2xl leading-7 ${secondaryText}`}>{gallery.description}</p>
+        </motion.div>
+
+        {status === "loading" && (
+          <p role="status" className={`mt-7 border-t border-current/20 pt-5 text-sm ${secondaryText}`}>
+            Chargement des logos…
+          </p>
+        )}
+
+        {status === "ready" && (logos.length > 0 ? (
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7">
+            {logos.map((logo, index) => (
+              <LogoCard key={logo.documentId ?? logo.id} logo={logo} light={light} reduceMotion={reduceMotion} index={index} />
+            ))}
+          </div>
+        ) : (
+          <p className={`mt-7 border-t border-current/20 pt-5 text-sm ${secondaryText}`}>{gallery.empty}</p>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const IllustratorContact = ({ reduceMotion }) => (
+  <section
+    id="contact-illustrator"
+    aria-labelledby="contact-illustrator-title"
+    tabIndex={-1}
+    className="scroll-mt-28 bg-[#def4ee] py-12 text-[#07111f] focus:outline-none sm:py-20"
+  >
+    <motion.div
+      className={`${container} grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16`}
+      initial={reduceMotion ? false : { y: 14, opacity: 0.85 }}
+      whileInView={{ y: 0, opacity: 1 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: reduceMotion ? 0 : 0.4, ease: "easeOut" }}
+    >
+      <div>
+        <h2 id="contact-illustrator-title" className="font-playfair text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+          Parlons de votre projet
+        </h2>
+        <p className="mt-4 max-w-md leading-7 text-[#355452]">
+          Un logo à créer ou une identité visuelle à faire évoluer ? Écrivez-moi ou appelez-moi.
+        </p>
+      </div>
+
+      <address className="min-w-0 divide-y divide-[#abcfc5] border-y border-[#abcfc5] not-italic">
+        <a
+          href={`mailto:${contactEmail}`}
+          className="group flex min-h-16 items-center gap-3 py-3 font-bold hover:text-[#106b5c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#137c6a] sm:gap-4"
+        >
+          <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-[#07111f] text-[#21c7a8]">
+            <i className="fas fa-envelope" />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-xs font-semibold text-[#355452]">E-mail</span>
+            <span className="break-words group-hover:underline">{contactEmail}</span>
+          </span>
+        </a>
+
+        <a
+          href={`tel:${contactPhone.replace(/[^\d+]/g, "")}`}
+          className="group flex min-h-16 items-center gap-3 py-3 font-bold hover:text-[#106b5c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#137c6a] sm:gap-4"
+        >
+          <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-[#07111f] text-[#21c7a8]">
+            <i className="fas fa-phone" />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-xs font-semibold text-[#355452]">Téléphone</span>
+            <span className="break-words group-hover:underline">{contactPhone}</span>
+          </span>
+        </a>
+      </address>
+    </motion.div>
+  </section>
+);
+
+const Illustrator = () => {
+  useIllustratorSeo();
+  const reduceMotion = useReducedMotion();
+  const headerRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: headerRef, offset: ["start start", "end start"] });
+  const logoOffset = useTransform(scrollYProgress, [0, 1], [0, 14]);
+  const [result, setResult] = useState({ status: "loading", logos: [] });
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const previousBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = reduceMotion ? "auto" : "smooth";
+
+    return () => {
+      root.style.scrollBehavior = previousBehavior;
+    };
+  }, [reduceMotion]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetchLogos(controller.signal)
+      .then((logos) => {
+        if (!controller.signal.aborted) setResult({ status: "ready", logos });
+      })
+      .catch((error) => {
+        if (controller.signal.aborted) return;
+        console.error("Erreur de chargement des logos :", error);
+        setResult({ status: "error", logos: [] });
+      });
+
+    return () => controller.abort();
+  }, [attempt]);
+
+  const retry = () => {
+    setResult({ status: "loading", logos: [] });
+    setAttempt((previous) => previous + 1);
+  };
+
+  const byCategory = { client: [], personnel: [] };
+  for (const logo of result.logos) {
+    const category = getField(logo, "categorie") === "client" ? "client" : "personnel";
+    byCategory[category].push(logo);
+  }
+
+  return (
+    <div className="min-h-screen bg-[#07111f] text-white" lang="fr">
       <Navbar />
 
       <main>
-        <section className="px-6 py-16 sm:px-12 lg:px-24">
-          <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1fr_0.82fr]">
-            <div>
-              <p className="mb-4 text-sm font-semibold uppercase tracking-[0.3em] text-[#21c7a8]">
-                Adobe Illustrator
-              </p>
-
-              <h1 className="libre text-5xl font-black italic leading-none sm:text-7xl lg:text-8xl">
-                Créations et conceptions de logos
+        <header ref={headerRef} className="overflow-hidden border-b border-white/10">
+          <div className={`${container} relative py-10 sm:py-14 lg:py-20`}>
+            <motion.div
+              className="relative sm:max-w-[63%] xl:max-w-[68%]"
+              initial={reduceMotion ? false : { y: 12 }}
+              animate={{ y: 0 }}
+              transition={{ duration: reduceMotion ? 0 : 0.45, ease: "easeOut" }}
+            >
+              <motion.div className="mb-4" style={reduceMotion ? undefined : { y: logoOffset }}>
+                <PresentationBrand toolLogo={illustratorLogo} toolName="Adobe Illustrator" />
+              </motion.div>
+              <h1 className="font-playfair text-4xl font-bold leading-none sm:text-5xl lg:text-7xl">
+                Logos &amp; identités visuelles
               </h1>
-
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-white/70 sm:text-xl">
-                Une galerie d&eacute;di&eacute;e &agrave; mes cr&eacute;ations
-                vectorielles, logos, et visuels.
-              </p>
-            </div>
-
-            <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-8 shadow-2xl backdrop-blur-xl">
-              <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-[#21c7a8]">
-                Collection logo
+              <p className="mt-5 max-w-xl leading-7 text-[#c3dbd8] sm:text-lg">
+                Des logos réalisés pour mes clients et des créations personnelles.
               </p>
 
-              <p className="text-4xl font-black leading-tight sm:text-5xl">
-                Passion et création à l'origine de l'art.
-              </p>
-            </div>
+              <nav aria-label="Sections de la galerie Illustrator" className="mt-6 flex flex-wrap gap-3">
+                {galleries.map((gallery) => (
+                  <a
+                    key={gallery.id}
+                    href={`#${gallery.id}`}
+                    className={`inline-flex min-h-11 items-center gap-2 rounded-lg border px-4 py-2 text-sm font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#21c7a8] ${
+                      gallery.category === "client"
+                        ? "border-[#21c7a8] bg-[#21c7a8] text-[#07111f] hover:bg-[#6ce0c9]"
+                        : "border-white/25 text-white hover:border-[#21c7a8] hover:text-[#21c7a8]"
+                    }`}
+                  >
+                    {gallery.title} <i className="fas fa-arrow-down" aria-hidden="true" />
+                  </a>
+                ))}
+                <a
+                  href="#contact-illustrator"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/25 px-4 py-2 text-sm font-bold text-white transition-colors hover:border-[#21c7a8] hover:text-[#21c7a8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#21c7a8]"
+                >
+                  Contact <i className="fas fa-envelope" aria-hidden="true" />
+                </a>
+              </nav>
+            </motion.div>
           </div>
-        </section>
+        </header>
 
-        <section className="border-y border-white/10 bg-white/[0.04] px-6 py-10 sm:px-12 lg:px-24">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 md:flex-row">
-            <div>
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#21c7a8]">
-                Identit&eacute; visuelle
-              </p>
-
-              <h2 className="max-w-3xl text-3xl font-black leading-tight sm:text-5xl">
-                D&eacute;couvrez mes logos r&eacute;alis&eacute;s avec Adobe
-                Illustrator
-              </h2>
-            </div>
-
-            <img
-              src={illustrator}
-              alt="Adobe Illustrator"
-              className="w-36 object-contain drop-shadow-2xl sm:w-44 md:w-56"
-            />
+        {result.status === "error" && (
+          <div className={`${container} flex flex-wrap items-center gap-4 py-5`}>
+            <p role="alert" className="text-white/80">La galerie n’a pas pu être chargée.</p>
+            <button type="button" onClick={retry} className="min-h-11 rounded-lg border border-white/25 px-4 font-bold text-[#21c7a8] hover:border-[#21c7a8]">
+              Réessayer
+            </button>
           </div>
-        </section>
+        )}
 
-        <section className="px-6 py-16 sm:px-12 lg:px-24">
-          <div className="mx-auto max-w-7xl">
-            {loading ? (
-              <div className="flex min-h-[360px] items-center justify-center">
-                <div className="text-center">
-                  <div className="mx-auto mb-5 h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-[#21c7a8]" />
-                  <p className="text-lg text-white/70">
-                    Chargement des logos...
-                  </p>
-                </div>
-              </div>
-            ) : logos.length === 0 ? (
-              <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-10 text-center shadow-2xl backdrop-blur-xl">
-                <p className="text-lg text-white/75">
-                  Aucun logo disponible pour le moment.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-                {logos.map((logo, index) => {
-                  const title = getPlainText(
-                    getField(logo, "title") ?? getField(logo, "text"),
-                    `Logo ${index + 1}`,
-                  );
-                  const descriptionBlocks = getTextBlocks(
-                    getField(logo, "description"),
-                    "Creation vectorielle realisee avec Adobe Illustrator.",
-                  );
-                  const imageUrl = getMediaUrl(logo);
+        {galleries.map((gallery) => (
+          <LogoGallery
+            key={gallery.id}
+            gallery={gallery}
+            logos={byCategory[gallery.category]}
+            status={result.status}
+            reduceMotion={reduceMotion}
+          />
+        ))}
 
-                  return (
-                    <article
-                      key={logo.id || title}
-                      className="group flex min-h-[520px] flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.06] shadow-2xl backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-[#21c7a8]/70"
-                    >
-                      <div className="flex h-72 items-center justify-center bg-[#f7faf9] p-8">
-                        {imageUrl ? (
-                          <img
-                            src={imageUrl}
-                            alt={title}
-                            className="max-h-56 w-full object-contain transition duration-500 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="flex h-36 w-36 items-center justify-center rounded-full border border-[#21c7a8]/40 bg-[#21c7a8]/10 text-4xl font-black text-[#21c7a8]">
-                            Ai
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex flex-1 flex-col p-7">
-                        <span className="mb-4 inline-flex w-fit rounded-full bg-[#21c7a8] px-4 py-1.5 text-xs font-black uppercase tracking-[0.18em] text-[#07111f]">
-                          Logo {index + 1}
-                        </span>
-
-                        <h3 className="mb-3 text-2xl font-black leading-tight">
-                          {title}
-                        </h3>
-
-                        <div className="mb-7 space-y-3 leading-7 text-white/65">
-                          {descriptionBlocks.map((paragraph, paragraphIndex) => (
-                            <p key={`${logo.id || title}-${paragraphIndex}`}>
-                              {paragraph}
-                            </p>
-                          ))}
-                        </div>
-
-                        {imageUrl && (
-                          <a
-                            href={imageUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-auto inline-flex w-full items-center justify-center gap-3 rounded-full border border-white/15 bg-white/10 px-5 py-4 font-bold text-white transition hover:bg-white hover:text-[#07111f]"
-                          >
-                            Voir le logo
-                            <span className="text-xl leading-none">&rarr;</span>
-                          </a>
-                        )}
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </section>
+        <IllustratorContact reduceMotion={reduceMotion} />
       </main>
 
       <Footer />
-    </motion.div>
+    </div>
   );
 };
 
