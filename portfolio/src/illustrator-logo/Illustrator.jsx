@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { Link } from "react-router-dom";
 import Navbar from "../main/Navbar";
 import Footer from "../main/Footer";
 import PresentationBrand from "../main/PresentationBrand";
@@ -11,8 +12,7 @@ const API_URL = "https://api.eliestudio.com";
 const pageTitle = "Logos et identités visuelles | ÉlieStudio";
 const pageDescription = "Découvrez les logos clients et les créations personnelles d’ElieStudio, une galerie de design de logos et d’identités visuelles réalisés avec Adobe Illustrator.";
 const container = "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12";
-const contactEmail = "bonjour@eliestudio.example";
-const contactPhone = "+33 1 99 00 00 00";
+const contactEmail = "el.contact.freelance@gmail.com";
 
 const galleries = [
   {
@@ -313,51 +313,48 @@ const IllustratorContact = ({ reduceMotion }) => (
     id="contact-illustrator"
     aria-labelledby="contact-illustrator-title"
     tabIndex={-1}
-    className="scroll-mt-28 bg-[#def4ee] py-12 text-[#07111f] focus:outline-none sm:py-20"
+    className="scroll-mt-28 border-t border-[#e0c4b9] bg-[#eff5f2] py-9 text-[#07111f] focus:outline-none sm:py-12"
   >
     <motion.div
-      className={`${container} grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16`}
+      className={`${container} grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] lg:gap-12`}
       initial={reduceMotion ? false : { y: 14, opacity: 0.85 }}
       whileInView={{ y: 0, opacity: 1 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: reduceMotion ? 0 : 0.4, ease: "easeOut" }}
     >
       <div>
-        <h2 id="contact-illustrator-title" className="font-playfair text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+        <h2 id="contact-illustrator-title" className="font-playfair text-3xl font-bold leading-tight sm:text-4xl">
           Parlons de votre projet
         </h2>
-        <p className="mt-4 max-w-md leading-7 text-[#355452]">
-          Un logo à créer ou une identité visuelle à faire évoluer ? Écrivez-moi ou appelez-moi.
+        <p className="mt-3 max-w-md leading-7 text-[#59423e]">
+          Un logo à créer ou une identité visuelle à faire évoluer ? Parlez-moi de votre idée.
         </p>
       </div>
 
-      <address className="min-w-0 divide-y divide-[#abcfc5] border-y border-[#abcfc5] not-italic">
-        <a
-          href={`mailto:${contactEmail}`}
-          className="group flex min-h-16 items-center gap-3 py-3 font-bold hover:text-[#106b5c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#137c6a] sm:gap-4"
-        >
-          <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-[#07111f] text-[#21c7a8]">
-            <i className="fas fa-envelope" />
-          </span>
-          <span className="min-w-0">
-            <span className="block text-xs font-semibold text-[#355452]">E-mail</span>
-            <span className="break-words group-hover:underline">{contactEmail}</span>
-          </span>
-        </a>
+      <div className="min-w-0 rounded-lg border border-white/15 bg-[#0b2231] p-4 text-white transition-[border-color,box-shadow] duration-300 hover:border-[#21c7a8] hover:shadow-[0_12px_30px_#07111f26] focus-within:border-[#21c7a8] sm:p-5">
+        <address className="border-b border-white/15 pb-4 not-italic">
+          <a
+            href={`mailto:${contactEmail}`}
+            className="group flex min-h-11 items-center gap-3 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#21c7a8]"
+          >
+            <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-white/10 text-[#21c7a8]">
+              <i className="fas fa-envelope" />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-medium text-[#c3dbd8]">E-mail</span>
+              <span className="block font-bold [overflow-wrap:anywhere] group-hover:text-[#21c7a8] group-hover:underline">{contactEmail}</span>
+            </span>
+          </a>
+        </address>
 
-        <a
-          href={`tel:${contactPhone.replace(/[^\d+]/g, "")}`}
-          className="group flex min-h-16 items-center gap-3 py-3 font-bold hover:text-[#106b5c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#137c6a] sm:gap-4"
+        <Link
+          to="/contact"
+          className="mt-4 flex min-h-12 w-full items-center justify-between gap-3 rounded-md bg-[#21c7a8] px-4 py-2.5 text-sm font-bold text-[#07111f] transition-colors hover:bg-[#6ce0c9] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#21c7a8]"
         >
-          <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-[#07111f] text-[#21c7a8]">
-            <i className="fas fa-phone" />
-          </span>
-          <span className="min-w-0">
-            <span className="block text-xs font-semibold text-[#355452]">Téléphone</span>
-            <span className="break-words group-hover:underline">{contactPhone}</span>
-          </span>
-        </a>
-      </address>
+          Accéder à la page Contact
+          <i className="fas fa-arrow-right shrink-0" aria-hidden="true" />
+        </Link>
+      </div>
     </motion.div>
   </section>
 );
