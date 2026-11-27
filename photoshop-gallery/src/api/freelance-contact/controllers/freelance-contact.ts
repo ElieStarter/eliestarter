@@ -1,5 +1,7 @@
 import type { Context } from 'koa';
+import { join } from 'node:path';
 import nodemailer from 'nodemailer';
+import { contactLogoCid, renderContactEmail, type ContactEmail } from '../utils/contact-email';
 
 const mailbox = 'el.contact.freelance@gmail.com';
 const subjects = {
@@ -19,7 +21,7 @@ const value = (input: unknown) => typeof input === 'string' ? input.trim() : '';
 const emailPattern = /^[^\s@<>,;():"\\]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i;
 const controlCharacters = /[\x00-\x1f\x7f]/;
 
-function readRequest(body: unknown) {
+function readRequest(body: unknown): ContactEmail | null {
   if (!body || typeof body !== 'object' || Array.isArray(body)) return null;
   const fields = body as Record<string, unknown>;
   const type = value(fields.requestType);
@@ -103,6 +105,14 @@ export default {
         to: mailbox,
         replyTo: { address: email, name },
         subject: `[ElieStudio] ${subjects[type]}`,
+        html: renderContactEmail(request),
+        attachments: [{
+          filename: 'eliestudio-el.png',
+          path: join(strapi.dirs.static.public, 'eliestudio-email-monogram.png'),
+          contentType: 'image/png',
+          contentDisposition: 'inline',
+          cid: contactLogoCid,
+        }],
         text: [
           `Nom : ${name}`,
           `E-mail : ${email}`,
